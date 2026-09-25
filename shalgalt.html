@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="mn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Сургалт</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#08090c;--s1:#111318;--s2:#1a1d26;--s3:#24283a;--border:#2e3348;
+  --accent:#4f8ef7;--accent2:#7c5cfc;--gold:#f5c842;--green:#22d3a5;--red:#f0506e;
+  --text:#eef0f8;--muted:#6b7280;--r:14px;--font:'Plus Jakarta Sans',sans-serif;
+}
+body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column;align-items:center;overflow-x:hidden}
+
+/* ── TOPBAR ── */
+.topbar{width:100%;background:rgba(17,19,24,.96);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:13px 28px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:200}
+.logo{font-weight:800;font-size:.92rem;letter-spacing:3px;text-transform:uppercase;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.back-link{color:var(--text);text-decoration:none;border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:.78rem;font-weight:700;transition:border-color .2s,color .2s,background .2s}
+.back-link:hover{border-color:var(--accent);color:var(--accent);background:rgba(79,142,247,.08)}
+.step-pill{background:var(--s2);border:1px solid var(--border);border-radius:99px;padding:5px 16px;font-size:.72rem;font-weight:600;letter-spacing:.5px;color:var(--muted);text-transform:uppercase}
+.prog-bar{width:100%;height:3px;background:var(--s2)}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--accent2),var(--accent));transition:width .7s cubic-bezier(.4,0,.2,1)}
+
+/* ── LAYOUT ── */
+.wrap{width:100%;max-width:900px;padding:36px 20px 80px}
+.section{display:none}.section.active{display:block;animation:up .4s ease both}
+@keyframes up{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── CARDS ── */
+.card{background:var(--s1);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;margin-bottom:20px}
+.card-body{padding:28px 32px}
+.card-head{padding:18px 32px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.card-head h2{font-size:1.25rem;font-weight:800}
+.chip{display:inline-flex;align-items:center;padding:4px 12px;border-radius:99px;font-size:.7rem;font-weight:700;letter-spacing:.5px;text-transform:uppercase;flex-shrink:0}
+.chip-blue{background:rgba(79,142,247,.15);color:var(--accent)}
+.chip-purple{background:rgba(124,92,252,.15);color:var(--accent2)}
+.chip-green{background:rgba(34,211,165,.15);color:var(--green)}
+.chip-red{background:rgba(240,80,110,.15);color:var(--red)}
+.chip-gold{background:rgba(245,200,66,.15);color:var(--gold)}
+
+/* ── UPLOAD ZONES ── */
+.upload-zone{border:2px dashed var(--border);border-radius:12px;padding:38px 24px;text-align:center;cursor:pointer;transition:border-color .2s,background .2s;position:relative;margin-bottom:14px}
+.upload-zone:hover,.upload-zone.drag{border-color:var(--accent);background:rgba(79,142,247,.05)}
+.upload-zone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.upload-icon{font-size:2.4rem;margin-bottom:10px}
+.upload-zone h3{font-size:.98rem;font-weight:700;margin-bottom:6px}
+.upload-zone p{font-size:.82rem;color:var(--muted)}
+.preview-wrap{position:relative;border-radius:10px;overflow:hidden;background:#000;margin-bottom:12px}
+.preview-wrap video{width:100%;display:block;max-height:440px}
+.remove-vid{position:absolute;top:10px;right:10px;background:rgba(0,0,0,.75);border:1px solid rgba(255,255,255,.15);color:#fff;border-radius:7px;padding:6px 12px;cursor:pointer;font-size:.78rem;font-family:var(--font);font-weight:600;transition:background .2s}
+.remove-vid:hover{background:rgba(240,80,110,.8)}
+.vid-info{font-size:.8rem;color:var(--muted);text-align:center;margin-bottom:12px}
+
+/* ── QUESTION EDITOR ── */
+.q-item{background:var(--s2);border:1px solid var(--border);border-radius:12px;padding:22px;margin-bottom:14px;position:relative}
+.q-num-badge{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:7px;background:linear-gradient(135deg,var(--accent2),var(--accent));font-size:.78rem;font-weight:800;margin-bottom:14px}
+.field-label{font-size:.72rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:7px}
+input[type=text],textarea{width:100%;background:var(--s3);border:1px solid var(--border);border-radius:8px;padding:10px 14px;color:var(--text);font-family:var(--font);font-size:.9rem;outline:none;transition:border-color .2s;display:block}
+input[type=text]:focus,textarea:focus{border-color:var(--accent)}
+textarea{resize:vertical;min-height:68px;line-height:1.6}
+.opts-editor{display:grid;gap:9px;margin:12px 0}
+.opt-row{display:flex;align-items:center;gap:9px}
+.opt-letter-badge{width:28px;height:28px;border-radius:7px;background:var(--s3);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.78rem;flex-shrink:0}
+input[type=radio]{width:17px;height:17px;accent-color:var(--green);cursor:pointer;flex-shrink:0}
+.del-btn{position:absolute;top:14px;right:14px;background:rgba(240,80,110,.1);border:1px solid rgba(240,80,110,.2);color:var(--red);border-radius:7px;padding:5px 11px;cursor:pointer;font-size:.75rem;font-family:var(--font);font-weight:600;transition:background .2s}
+.del-btn:hover{background:rgba(240,80,110,.22)}
+.del-btn:disabled{opacity:.3;cursor:default}
+.fb-upload-row{margin-top:14px;padding-top:14px;border-top:1px solid var(--border)}
+.small-upload{border:1.5px dashed var(--border);border-radius:9px;padding:12px 16px;display:flex;align-items:center;gap:12px;cursor:pointer;position:relative;transition:border-color .2s,background .2s}
+.small-upload:hover{border-color:var(--accent2);background:rgba(124,92,252,.05)}
+.small-upload input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.small-upload.done{border-color:var(--green);background:rgba(34,211,165,.05)}
+.su-icon{font-size:1.5rem}
+.su-text p{font-size:.82rem;font-weight:600;margin-bottom:2px}
+.su-text span{font-size:.72rem;color:var(--muted)}
+.add-q-btn{width:100%;border:1.5px dashed var(--border);border-radius:10px;padding:13px;background:transparent;color:var(--muted);font-family:var(--font);font-size:.88rem;cursor:pointer;transition:all .2s;margin-top:4px}
+.add-q-btn:hover{border-color:var(--accent2);color:var(--accent2);background:rgba(124,92,252,.05)}
+
+/* ── BUTTONS ── */
+.btn{display:inline-flex;align-items:center;gap:8px;border:none;border-radius:9px;cursor:pointer;font-family:var(--font);font-weight:700;transition:opacity .2s,transform .15s}
+.btn:hover{opacity:.87;transform:translateY(-1px)}
+.btn:active{transform:translateY(0)}
+.btn-primary{background:linear-gradient(135deg,var(--accent2),var(--accent));color:#fff;padding:13px 28px;font-size:.95rem}
+.btn-outline{background:transparent;border:1.5px solid var(--border);color:var(--text);padding:12px 22px;font-size:.88rem}
+.btn-outline:hover{border-color:var(--accent);color:var(--accent);opacity:1}
+.btn-green{background:linear-gradient(135deg,#17b88a,var(--green));color:#08090c;padding:13px 30px;font-size:.95rem}
+.btn-row{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+
+/* ── QUIZ ── */
+.quiz-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:26px;gap:12px;flex-wrap:wrap}
+.q-dots-row{display:flex;gap:6px;flex-wrap:wrap}
+.q-dot{width:9px;height:9px;border-radius:50%;background:var(--s3);border:1px solid var(--border);transition:all .3s}
+.q-dot.cur{background:var(--accent);border-color:var(--accent);box-shadow:0 0 0 3px rgba(79,142,247,.22)}
+.q-dot.ok{background:var(--green);border-color:var(--green)}
+.q-dot.ng{background:var(--red);border-color:var(--red)}
+.timer-wrap{display:flex;flex-direction:column;align-items:center;gap:4px}
+.timer-ring{position:relative;width:74px;height:74px}
+.timer-ring svg{transform:rotate(-90deg);width:74px;height:74px}
+.t-track{fill:none;stroke:var(--s3);stroke-width:6}
+.t-fill{fill:none;stroke:var(--accent);stroke-width:6;stroke-linecap:round;stroke-dasharray:204;stroke-dashoffset:0;transition:stroke-dashoffset .9s linear,stroke .3s}
+.t-fill.warn{stroke:var(--gold)}
+.t-fill.urg{stroke:var(--red)}
+.t-num{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:1.3rem;font-weight:800}
+.q-text{font-size:1.18rem;font-weight:700;line-height:1.65;margin-bottom:24px}
+.opts-grid{display:grid;gap:11px}
+.opt-btn{background:var(--s2);border:2px solid var(--border);border-radius:11px;padding:15px 20px;cursor:pointer;font-family:var(--font);font-size:.93rem;color:var(--text);text-align:left;display:flex;align-items:center;gap:14px;transition:border-color .2s,background .2s,transform .15s;width:100%}
+.opt-btn:hover:not(:disabled){border-color:var(--accent);background:rgba(79,142,247,.07);transform:translateX(5px)}
+.opt-btn .ol{width:30px;height:30px;border-radius:7px;background:var(--s3);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.8rem;flex-shrink:0;transition:all .2s}
+.opt-btn.correct{border-color:var(--green);background:rgba(34,211,165,.09)}
+.opt-btn.correct .ol{background:var(--green);border-color:var(--green);color:#000}
+.opt-btn.wrong{border-color:var(--red);background:rgba(240,80,110,.09)}
+.opt-btn.wrong .ol{background:var(--red);border-color:var(--red);color:#fff}
+.opt-btn.reveal{border-color:var(--green);background:rgba(34,211,165,.05)}
+.opt-btn:disabled{cursor:default;transform:none!important}
+
+/* ── AVATAR EXPLAINER ── */
+.avatar-layout{display:flex;gap:26px;align-items:flex-start;flex-wrap:wrap}
+.avatar-col{flex:0 0 190px}
+.avatar-card{background:var(--s2);border:1px solid var(--border);border-radius:13px;padding:16px;text-align:center}
+.avatar-figure{width:100%;aspect-ratio:1/1.35;border-radius:10px;background:linear-gradient(160deg,#1e2235,var(--s2));display:flex;flex-direction:column;align-items:center;justify-content:flex-end;overflow:hidden;position:relative;margin-bottom:10px}
+.av-head{font-size:3rem;position:absolute;top:14px;left:50%;transform:translateX(-50%)}
+.av-body{font-size:4.5rem;line-height:1;margin-bottom:-8px;position:relative;z-index:1}
+.av-glow{position:absolute;bottom:0;left:0;right:0;height:35%;background:linear-gradient(0deg,rgba(79,142,247,.25),transparent)}
+.speak-dots{display:flex;gap:5px;justify-content:center;margin:8px 0 6px}
+.sdot{width:7px;height:7px;border-radius:50%;background:var(--accent);animation:sbounce .75s infinite ease-in-out}
+.sdot:nth-child(2){animation-delay:.14s}.sdot:nth-child(3){animation-delay:.28s}
+@keyframes sbounce{0%,80%,100%{transform:translateY(0)}40%{transform:translateY(-7px)}}
+.av-name{font-size:.75rem;font-weight:700;color:var(--muted);letter-spacing:.5px}
+.explain-col{flex:1;min-width:240px}
+.exp-header{display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap}
+.exp-box{background:var(--s2);border:1px solid var(--border);border-left:3px solid var(--accent2);border-radius:0 11px 11px 0;padding:16px 18px;font-size:.9rem;line-height:1.75;margin-bottom:14px}
+.exp-vid{width:100%;border-radius:10px;background:#000;display:block;margin-bottom:14px}
+.correct-ans{font-size:.82rem;color:var(--muted);margin-bottom:18px}
+.correct-ans strong{color:var(--green)}
+
+/* ── RESULTS ── */
+.res-hero{text-align:center;padding:44px 24px 32px}
+.score-ring-wrap{display:flex;justify-content:center;margin-bottom:24px}
+.score-ring{position:relative;width:160px;height:160px}
+.score-ring svg{width:160px;height:160px;transform:rotate(-90deg)}
+.sr-track{fill:none;stroke:var(--s3);stroke-width:10}
+.sr-fill{fill:none;stroke:url(#rgrad);stroke-width:10;stroke-linecap:round;stroke-dasharray:440;stroke-dashoffset:440;transition:stroke-dashoffset 1.4s cubic-bezier(.4,0,.2,1) .2s}
+.score-inside{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px}
+.score-big{font-size:2.5rem;font-weight:900;background:linear-gradient(135deg,var(--accent2),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;line-height:1}
+.score-pct{font-size:.78rem;color:var(--muted);font-weight:600}
+.res-title{font-size:1.2rem;font-weight:800;margin-bottom:8px}
+.res-sub{font-size:.88rem;color:var(--muted);margin-bottom:26px;max-width:440px;margin-left:auto;margin-right:auto;line-height:1.6}
+.review-list{display:grid;gap:10px;margin-top:6px}
+.review-item{display:flex;align-items:flex-start;gap:13px;padding:14px 18px;border-radius:10px;background:var(--s2);border:1px solid var(--border)}
+.review-item.ok{border-color:rgba(34,211,165,.28)}
+.review-item.ng{border-color:rgba(240,80,110,.28)}
+.rev-icon{font-size:1.1rem;flex-shrink:0;margin-top:1px}
+.rev-q{font-size:.87rem;font-weight:600;margin-bottom:4px}
+.rev-a{font-size:.78rem;color:var(--muted)}
+.rev-a strong{color:var(--text)}
+
+/* ── MISC ── */
+.divider{height:1px;background:var(--border);margin:20px 0}
+.note{background:rgba(79,142,247,.07);border:1px solid rgba(79,142,247,.18);border-radius:9px;padding:12px 16px;font-size:.82rem;color:var(--muted);line-height:1.65;margin-top:14px}
+.info-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:18px 0}
+.info-box{background:var(--s2);border:1px solid var(--border);border-radius:11px;padding:16px;text-align:center}
+.info-box .v{font-size:1.5rem;font-weight:900;background:linear-gradient(135deg,var(--accent2),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.info-box .l{font-size:.7rem;color:var(--muted);margin-top:4px}
+
+@media(max-width:640px){
+  .card-body{padding:18px 16px}.card-head{padding:14px 16px}
+  .avatar-layout{flex-direction:column}
+  .avatar-col{flex:none;width:100%;max-width:180px;margin:0 auto}
+  .info-grid{grid-template-columns:1fr 1fr}
+  .q-text{font-size:1.05rem}
+  .score-big{font-size:2rem}
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="logo">Замын 2-р анги</div>
+  <div style="display:flex;align-items:center;gap:12px">
+    <a class="back-link" href="surgalt.html" target="_top" rel="noopener">← Сургалтын цэс</a>
+    <div class="step-pill" id="step-pill">Сургалт</div>
+  </div>
+</div>
+<div class="prog-bar"><div class="prog-fill" id="prog" style="width:0%"></div></div>
+
+<div class="wrap">
+
+<!-- ══════════════════════════════════════
+     S1 · SETUP
+══════════════════════════════════════ -->
+<div id="s-setup" class="section active">
+
+  <!-- Intro video upload -->
+  <div class="card">
+    <div class="card-head">
+      <h2>Танилцуулга</h2>
+    </div>
+    <div class="card-body">
+      <div class="upload-zone" id="intro-zone">
+        <input type="file" accept="video/*" id="intro-file">
+        <div class="upload-icon">🎬</div>
+        <h3>Бичлэгээ оруулна уу</h3>
+      </div>
+      <div id="intro-prev" style="display:none">
+        <div class="preview-wrap">
+          <video id="intro-vid" controls></video>
+          <button class="remove-vid" id="rm-intro">✕ Устгах</button>
+        </div>
+        <div class="vid-info" id="intro-info"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Questions -->
+  <div class="card">
+    <div class="card-head">
+      <h2>Шалгалтын асуултууд</h2>
+    </div>
+    <div class="card-body">
+      <div id="q-list"></div>
+      <button class="add-q-btn" id="add-q-btn">＋ Асуулт нэмэх</button>
+    </div>
+  </div>
+
+  <div class="btn-row" style="justify-content:flex-end;margin-top:6px">
+    <button class="btn btn-green" id="launch-btn">▶ &nbsp;Сургалт эхлүүлэх</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     S2 · INTRO PLAYBACK
+══════════════════════════════════════ -->
+<div id="s-intro" class="section">
+  <div class="card">
+    <div class="card-head">
+      <h2>Байгууллагын танилцуулга</h2>
+      <span class="chip chip-blue">Бичлэг</span>
+    </div>
+    <div class="card-body">
+      <div class="preview-wrap">
+        <video id="play-intro" controls style="width:100%;display:block;border-radius:10px;background:#000;max-height:460px"></video>
+      </div>
+      <p class="note" id="intro-note">📽 Бичлэгийг бүрэн үзсэний дараа шалгалт автоматаар эхэлнэ.</p>
+      <div class="btn-row" style="justify-content:center;margin-top:18px">
+        <button class="btn btn-primary" id="skip-btn" style="display:none">Шалгалт эхлүүлэх →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     S3 · QUIZ
+══════════════════════════════════════ -->
+<div id="s-quiz" class="section">
+  <div class="card">
+    <div class="card-body">
+      <div class="quiz-top">
+        <div class="q-dots-row" id="q-dots"></div>
+        <div class="timer-wrap">
+          <div class="timer-ring">
+            <svg viewBox="0 0 74 74">
+              <circle class="t-track" cx="37" cy="37" r="32"/>
+              <circle class="t-fill" id="t-fill" cx="37" cy="37" r="32"/>
+            </svg>
+            <div class="t-num" id="t-num">30</div>
+          </div>
+        </div>
+      </div>
+      <div class="q-text" id="q-text"></div>
+      <div class="opts-grid" id="opts"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     S4 · AVATAR EXPLAINER
+══════════════════════════════════════ -->
+<div id="s-explain" class="section">
+  <div class="card">
+    <div class="card-head">
+      <h2>Хариултын тайлбар</h2>
+      <span class="chip" id="ans-chip">Зөв</span>
+    </div>
+    <div class="card-body">
+      <div class="avatar-layout">
+
+        <!-- Avatar -->
+        <div class="avatar-col">
+          <div class="avatar-card">
+            <div class="avatar-figure">
+              <div class="av-head">🧑‍💼</div>
+              <div class="av-body">👔</div>
+              <div class="av-glow"></div>
+            </div>
+            <div class="speak-dots" id="speak-dots">
+              <div class="sdot"></div><div class="sdot"></div><div class="sdot"></div>
+            </div>
+            <div class="av-name">СУРГАГЧ</div>
+          </div>
+        </div>
+
+        <!-- Explanation -->
+        <div class="explain-col">
+          <div class="exp-header">
+            <span class="chip" id="res-chip">✓ Зөв</span>
+            <span style="font-size:.8rem;color:var(--muted)" id="exp-q-label">1-р асуулт</span>
+          </div>
+          <!-- feedback video if provided -->
+          <div id="exp-vid-wrap" style="display:none">
+            <video id="exp-vid" controls class="exp-vid"></video>
+          </div>
+          <!-- text explanation -->
+          <div class="exp-box" id="exp-text"></div>
+          <div class="correct-ans" id="correct-ans"></div>
+          <button class="btn btn-primary" id="next-q-btn">Дараагийн асуулт →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     S5 · RESULTS
+══════════════════════════════════════ -->
+<div id="s-result" class="section">
+  <div class="card">
+    <div class="res-hero">
+      <div class="score-ring-wrap">
+        <div class="score-ring">
+          <svg viewBox="0 0 160 160">
+            <defs>
+              <linearGradient id="rgrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#7c5cfc"/><stop offset="100%" stop-color="#4f8ef7"/>
+              </linearGradient>
+            </defs>
+            <circle class="sr-track" cx="80" cy="80" r="70"/>
+            <circle class="sr-fill" id="sr-fill" cx="80" cy="80" r="70"/>
+          </svg>
+          <div class="score-inside">
+            <div class="score-big" id="res-score">0/0</div>
+            <div class="score-pct" id="res-pct">0%</div>
+          </div>
+        </div>
+      </div>
+      <div class="res-title" id="res-title">Сургалт дууслаа!</div>
+      <div class="res-sub" id="res-sub"></div>
+      <div class="btn-row" style="justify-content:center">
+        <button class="btn btn-outline" onclick="location.reload()">↺ Дахин эхлэх</button>
+      </div>
+    </div>
+    <div class="divider"></div>
+    <div class="card-body">
+      <p style="font-size:.88rem;font-weight:700;margin-bottom:14px">Асуулт бүрийн үр дүн</p>
+      <div class="review-list" id="review-list"></div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /wrap -->
+
+<script>
+// ══════════════════════════════════════
+//  DEMO QUESTIONS
+// ══════════════════════════════════════
+const DEFAULTS = [
+  {
+    q:'Байгууллагын үүсэн байгуулагдсан он?',
+    options:['1949 он','1990 он','2000 он','2010 он'],
+    correct:0,
+    explanation:'Манай байгууллага 1949 онд үүсэн байгуулагдсан бөгөөд 75 гаруй жилийн баялаг түүхтэй. Энэ хугацаанд байгууллага тасралтгүй хөгжиж, салбартаа тэргүүлэгч байр суурийг хадгалж ирсэн.',
+    fbURL:null
+  },
+  {
+    q:'Манай байгууллагын үндсэн үнэт зүйл юу вэ?',
+    options:['Ашиг орлого','Хариуцлага ба шударга байдал','Хурд ба үр ашиг','Бүтээгдэхүүний чанар'],
+    correct:1,
+    explanation:'Хариуцлага ба шударга байдал бол манай байгууллагын гол үнэт зүйл юм. Ажилтан бүр энэ зарчмыг өдөр тутмын ажилдаа баримтлан, харилцагч болон хамт олондоо үлгэр дуурайлал үзүүлнэ.',
+    fbURL:null
+  },
+  {
+    q:'Ажлын цаг болон цайны завсарлага хэд вэ?',
+    options:['08:00–17:00, завсарлага 12:00–13:00','09:00–18:00, завсарлага 12:00–13:00','07:00–16:00, завсарлага 11:00–12:00'],
+    correct:1,
+    explanation:'Байгууллагын ажлын цаг 09:00–18:00 бөгөөд цайны завсарлага 12:00–13:00 цагт байна. Хоцорсон тохиолдолд менежерт урьдчилан мэдэгдэх шаардлагатай.',
+    fbURL:null
+  },
+  {
+    q:'Хэрэв ажлын байранд осол гарвал эхлээд юу хийх вэ?',
+    options:['Гар утсаар зураг ав','Менежерт мэдэгдэ','Яаралтай тусламж дуудах (103/105)','Гэртээ явах'],
+    correct:2,
+    explanation:'Аливаа аюулын үед эхлээд яаралтай тусламжийн дугаар 103 эсвэл 105 руу залгах нь хамгийн зөв үйлдэл юм. Аюулгүй байдал нь хамгийн тэргүүн зорилт.',
+    fbURL:null
+  }
+];
+
+// ══════════════════════════════════════
+//  STATE
+// ══════════════════════════════════════
+let questions = DEFAULTS.map(q=>({...q, options:[...q.options]}));
+let introURL  = null;
+let curQ=0, score=0, results=[];
+let timerInt  = null;
+const TSEC=30, CIRC=2*Math.PI*32; // r=32 → ~201
+
+// ══════════════════════════════════════
+//  HELPERS
+// ══════════════════════════════════════
+function show(id,pct,step){
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.getElementById('prog').style.width=pct+'%';
+  document.getElementById('step-pill').textContent=step;
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;')}
+
+// ══════════════════════════════════════
+//  SETUP — INTRO VIDEO UPLOAD
+// ══════════════════════════════════════
+const introFileInp = document.getElementById('intro-file');
+const introZone    = document.getElementById('intro-zone');
+const introPrev    = document.getElementById('intro-prev');
+const introVidEl   = document.getElementById('intro-vid');
+
+function applyIntro(file){
+  if(introURL) URL.revokeObjectURL(introURL);
+  introURL = URL.createObjectURL(file);
+  introVidEl.src = introURL;
+  document.getElementById('intro-info').textContent =
+    '📹 '+file.name+' · '+Math.round(file.size/1024/1024*10)/10+' MB';
+  introZone.style.display='none';
+  introPrev.style.display='block';
+}
+introFileInp.addEventListener('change',e=>{if(e.target.files[0]) applyIntro(e.target.files[0])});
+['dragover','dragleave','drop'].forEach(ev=>{
+  introZone.addEventListener(ev,e=>{
+    e.preventDefault();
+    if(ev==='dragover') introZone.classList.add('drag');
+    else introZone.classList.remove('drag');
+    if(ev==='drop'){const f=e.dataTransfer.files[0];if(f&&f.type.startsWith('video/')) applyIntro(f);}
+  });
+});
+document.getElementById('rm-intro').addEventListener('click',()=>{
+  introVidEl.src=''; introURL=null; introFileInp.value='';
+  introZone.style.display=''; introPrev.style.display='none';
+});
+
+// ══════════════════════════════════════
+//  SETUP — QUESTION EDITOR
+// ══════════════════════════════════════
+function renderEditor(){
+  const list=document.getElementById('q-list');
+  list.innerHTML='';
+  questions.forEach((q,qi)=>{
+    const wrap=document.createElement('div');
+    wrap.className='q-item';
+    wrap.innerHTML=`
+      <div class="q-num-badge">${qi+1}</div>
+      <button class="del-btn" data-qi="${qi}" ${questions.length<=1?'disabled':''}>Устгах</button>
+
+      <div class="field-label">Асуулт</div>
+      <input type="text" value="${esc(q.q)}" placeholder="Асуулт бичнэ үү…" data-qi="${qi}" data-f="q">
+
+      <div class="field-label" style="margin-top:14px">Хариултууд
+        <span style="font-weight:400;color:var(--muted)"> — зөвийг радиогоор тэмдэглэнэ</span>
+      </div>
+      <div class="opts-editor">
+        ${q.options.map((o,oi)=>`
+          <div class="opt-row">
+            <div class="opt-letter-badge">${'ABCD'[oi]}</div>
+            <input type="text" value="${esc(o)}" placeholder="Хариулт ${oi+1}" data-qi="${qi}" data-oi="${oi}" data-f="opt">
+            <input type="radio" name="c${qi}" value="${oi}" ${q.correct===oi?'checked':''} data-qi="${qi}" title="Зөв хариулт">
+          </div>`).join('')}
+      </div>
+
+      <div class="field-label" style="margin-top:14px">Тайлбар текст</div>
+      <textarea placeholder="Зөв хариултыг дэлгэрэнгүй тайлбарлана уу (хүний дүрс хэлнэ)" data-qi="${qi}" data-f="expl">${esc(q.explanation)}</textarea>
+
+      <div class="fb-upload-row">
+        <div class="field-label" style="margin-bottom:8px">Тайлбар бичлэг (заавал биш)</div>
+        <div class="small-upload ${q.fbURL?'done':''}" id="su${qi}">
+          <input type="file" accept="video/*" class="fb-inp" data-qi="${qi}">
+          <div class="su-icon">${q.fbURL?'✅':'🎥'}</div>
+          <div class="su-text">
+            <p>${q.fbURL?'Бичлэг оруулсан':'Тайлбар бичлэг оруулах'}</p>
+            <span>${q.fbURL?'Сольхийн тулд дарна уу':'Асуулт бүрд тусдаа бичлэг'}</span>
+          </div>
+        </div>
+      </div>`;
+    list.appendChild(wrap);
+  });
+
+  list.querySelectorAll('input[data-f=q]').forEach(el=>el.addEventListener('input',e=>questions[+e.target.dataset.qi].q=e.target.value));
+  list.querySelectorAll('input[data-f=opt]').forEach(el=>el.addEventListener('input',e=>questions[+e.target.dataset.qi].options[+e.target.dataset.oi]=e.target.value));
+  list.querySelectorAll('textarea[data-f=expl]').forEach(el=>el.addEventListener('input',e=>questions[+e.target.dataset.qi].explanation=e.target.value));
+  list.querySelectorAll('input[type=radio]').forEach(el=>el.addEventListener('change',e=>questions[+e.target.dataset.qi].correct=+e.target.value));
+  list.querySelectorAll('.del-btn').forEach(btn=>btn.addEventListener('click',()=>{
+    questions.splice(+btn.dataset.qi,1); renderEditor();
+  }));
+  list.querySelectorAll('.fb-inp').forEach(inp=>inp.addEventListener('change',e=>{
+    const qi=+e.target.dataset.qi, f=e.target.files[0]; if(!f) return;
+    if(questions[qi].fbURL) URL.revokeObjectURL(questions[qi].fbURL);
+    questions[qi].fbURL=URL.createObjectURL(f);
+    const su=document.getElementById('su'+qi);
+    su.classList.add('done');
+    su.querySelector('.su-icon').textContent='✅';
+    su.querySelector('p').textContent='Бичлэг оруулсан';
+    su.querySelector('span').textContent=f.name;
+  }));
+}
+
+document.getElementById('add-q-btn').addEventListener('click',()=>{
+  questions.push({q:'',options:['','','',''],correct:0,explanation:'',fbURL:null});
+  renderEditor();
+  setTimeout(()=>document.querySelectorAll('.q-item').item(questions.length-1)?.scrollIntoView({behavior:'smooth',block:'start'}),60);
+});
+
+renderEditor();
+
+// ══════════════════════════════════════
+//  LAUNCH
+// ══════════════════════════════════════
+document.getElementById('launch-btn').addEventListener('click',()=>{
+  if(!introURL){alert('Танилцуулга бичлэг оруулна уу!');return;}
+  const empty=questions.findIndex(q=>!q.q.trim()||q.options.filter(o=>o.trim()).length<2);
+  if(empty>=0){alert((empty+1)+'-р асуултыг бөглөнө үү (хамгийн багадаа 2 хариулт)!');return;}
+  launchIntro();
+});
+
+// ══════════════════════════════════════
+//  INTRO PLAYBACK
+// ══════════════════════════════════════
+function launchIntro(){
+  show('s-intro',15,'Танилцуулга бичлэг');
+  const vid=document.getElementById('play-intro');
+  vid.src=introURL;
+  vid.play().catch(()=>{});
+
+  const skipBtn=document.getElementById('skip-btn');
+  const note   =document.getElementById('intro-note');
+
+  function onEnd(){skipBtn.style.display='none'; note.style.display='none'; launchQuiz();}
+  vid.addEventListener('ended',onEnd,{once:true});
+
+  // Show skip after 5s
+  setTimeout(()=>{skipBtn.style.display='inline-flex';},5000);
+  skipBtn.addEventListener('click',()=>{vid.pause(); vid.removeEventListener('ended',onEnd); launchQuiz();},{once:true});
+}
+
+// ══════════════════════════════════════
+//  QUIZ
+// ══════════════════════════════════════
+function launchQuiz(){
+  curQ=0; score=0; results=[];
+  buildDots();
+  show('s-quiz',30,'Шалгалт');
+  loadQ();
+}
+
+function buildDots(){
+  const wrap=document.getElementById('q-dots'); wrap.innerHTML='';
+  questions.forEach((_,i)=>{
+    const d=document.createElement('div'); d.className='q-dot'; d.id='dot'+i; wrap.appendChild(d);
+  });
+}
+function updateDots(){
+  questions.forEach((_,i)=>{
+    const d=document.getElementById('dot'+i); d.className='q-dot';
+    if(i<curQ) d.classList.add(results[i]?'ok':'ng');
+    else if(i===curQ) d.classList.add('cur');
+  });
+}
+
+function loadQ(){
+  clearInterval(timerInt);
+  updateDots();
+  document.getElementById('prog').style.width=(30+curQ/questions.length*45)+'%';
+
+  const data=questions[curQ];
+  document.getElementById('q-text').textContent=data.q;
+
+  const wrap=document.getElementById('opts'); wrap.innerHTML='';
+  const validOpts=data.options.map((o,i)=>({o,i})).filter(({o})=>o.trim());
+  validOpts.forEach(({o,i})=>{
+    const b=document.createElement('button');
+    b.className='opt-btn';
+    b.innerHTML=`<span class="ol">${'ABCD'[i]}</span>${o}`;
+    b.addEventListener('click',()=>pick(i,validOpts));
+    wrap.appendChild(b);
+  });
+
+  startTimer();
+}
+
+function startTimer(){
+  let t=TSEC;
+  const num=document.getElementById('t-num'), fill=document.getElementById('t-fill');
+  num.textContent=t; fill.style.strokeDashoffset=0; fill.className='t-fill';
+  timerInt=setInterval(()=>{
+    t--;
+    num.textContent=t;
+    fill.style.strokeDashoffset=CIRC*(1-t/TSEC);
+    if(t<=8) fill.className='t-fill urg';
+    else if(t<=15) fill.className='t-fill warn';
+    if(t<=0) pick(-1,[]);
+  },1000);
+}
+
+function pick(chosen, validOpts){
+  clearInterval(timerInt);
+  const data=questions[curQ];
+  const ok=chosen===data.correct;
+  if(ok) score++;
+  results.push(ok);
+
+  // Rebuild with highlight
+  const wrap=document.getElementById('opts'); wrap.innerHTML='';
+  (validOpts.length?validOpts:data.options.map((o,i)=>({o,i})).filter(({o})=>o.trim())).forEach(({o,i})=>{
+    const b=document.createElement('button'); b.disabled=true;
+    let cls='opt-btn';
+    if(i===data.correct) cls+=' '+(chosen===-1?'reveal':'correct');
+    else if(i===chosen)  cls+=' wrong';
+    b.className=cls;
+    b.innerHTML=`<span class="ol">${'ABCD'[i]}</span>${o}`;
+    wrap.appendChild(b);
+  });
+
+  setTimeout(()=>showExplain(data,ok),800);
+}
+
+// ══════════════════════════════════════
+//  AVATAR EXPLAINER
+// ══════════════════════════════════════
+function showExplain(data,ok){
+  show('s-explain', 30+curQ/questions.length*45+15, 'Тайлбар');
+
+  const aChip =document.getElementById('ans-chip');
+  const rChip =document.getElementById('res-chip');
+  if(ok){
+    aChip.className='chip chip-green'; aChip.textContent='✓ Зөв хариулт';
+    rChip.className='chip chip-green'; rChip.textContent='✓ Зөв хариуллаа!';
+  } else {
+    aChip.className='chip chip-red'; aChip.textContent='✗ Буруу хариулт';
+    rChip.className='chip chip-red'; rChip.textContent='✗ Буруу хариуллаа';
+  }
+  document.getElementById('exp-q-label').textContent=(curQ+1)+'-р асуулт';
+  document.getElementById('exp-text').textContent=data.explanation||'Тайлбар оруулаагүй.';
+  document.getElementById('correct-ans').innerHTML=
+    'Зөв хариулт: <strong>'+data.options[data.correct]+'</strong>';
+
+  const vidWrap=document.getElementById('exp-vid-wrap');
+  const vid    =document.getElementById('exp-vid');
+  const dots   =document.getElementById('speak-dots');
+
+  if(data.fbURL){
+    vidWrap.style.display='block';
+    vid.src=data.fbURL; vid.load(); vid.play().catch(()=>{});
+    dots.style.display='flex';
+    vid.onpause=()=>dots.style.display='none';
+    vid.onplay =()=>dots.style.display='flex';
+    vid.onended=()=>dots.style.display='none';
+  } else {
+    vidWrap.style.display='none'; vid.src='';
+    dots.style.display='flex';
+    setTimeout(()=>dots.style.display='none',3200);
+  }
+}
+
+document.getElementById('next-q-btn').addEventListener('click',()=>{
+  document.getElementById('exp-vid').pause();
+  curQ++;
+  if(curQ<questions.length){
+    show('s-quiz', 30+curQ/questions.length*45, 'Шалгалт'); loadQ();
+  } else {
+    showResults();
+  }
+});
+
+// ══════════════════════════════════════
+//  RESULTS
+// ══════════════════════════════════════
+function showResults(){
+  show('s-result',100,'Үр дүн');
+  const pct=Math.round(score/questions.length*100);
+  document.getElementById('res-score').textContent=score+'/'+questions.length;
+  document.getElementById('res-pct').textContent=pct+'%';
+
+  let title,sub;
+  if(pct>=90){title='🏆 Гайхалтай амжилт!';sub='Та сургалтыг маш өндөр оноотой дүүргэлээ. Цаашдын ажилд амжилт хүсье!'}
+  else if(pct>=70){title='👍 Сайн хийлээ!';sub='Та сургалтыг амжилттай дүүргэлээ. Зарим хэсгийг нэмж судлаарай.'}
+  else if(pct>=50){title='📚 Дахин давтаж судлаарай';sub='Та '+pct+'% оноо авлаа. Хагасаас илүү хариуллаа — зарим хэсгийг нэмж анхаарна уу.'}
+  else{title='🔄 Сургалтыг дахин үзэхийг зөвлөж байна';sub='Та '+pct+'% оноо авлаа. Материалыг дахин судалж, дахин оролдоорой.'}
+
+  document.getElementById('res-title').textContent=title;
+  document.getElementById('res-sub').textContent=sub;
+
+  const circ=2*Math.PI*70;
+  setTimeout(()=>{document.getElementById('sr-fill').style.strokeDashoffset=circ*(1-pct/100);},100);
+
+  const revList=document.getElementById('review-list'); revList.innerHTML='';
+  results.forEach((ok,i)=>{
+    const d=questions[i];
+    const div=document.createElement('div');
+    div.className='review-item '+(ok?'ok':'ng');
+    div.innerHTML=`
+      <div class="rev-icon">${ok?'✅':'❌'}</div>
+      <div>
+        <div class="rev-q">${i+1}. ${d.q}</div>
+        <div class="rev-a">Зөв хариулт: <strong>${d.options[d.correct]}</strong></div>
+      </div>`;
+    revList.appendChild(div);
+  });
+}
+</script>
+</body>
+</html>
